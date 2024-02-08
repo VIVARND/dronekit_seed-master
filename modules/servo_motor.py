@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 
 DUTY_CYCLE_BY_ANGLE = {
     #듀티비는 서보모터에 따라 다를 수 있음
-    0:3.0, 15:4, 30:5, 45:6, 60:7, 75:8, 90:9
+    0:3.0, 20:4, 40:5, 60:6, 80:7, 115:8, 140:9
 }
 
 class ServoMotor:

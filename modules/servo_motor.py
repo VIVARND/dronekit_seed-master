@@ -8,7 +8,7 @@ DUTY_CYCLE_BY_ANGLE = {
 class ServoMotor:
 
     def __init__(self):
-        servo_pin = 18
+        servo_pin = 27
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(servo_pin, GPIO.OUT)
         self.pwm =  GPIO.PWM(servo_pin, 50)  # 50Hz (서보모터 PWM 동작을 위한 주파수) - 50hz은 공식적으로 약속된 값임

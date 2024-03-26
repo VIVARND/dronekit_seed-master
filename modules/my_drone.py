@@ -1,4 +1,4 @@
-from dronekit import connect, VehicleMode, Vehicle
+from dronekit import connect, VehicleMode
 from modules.lands import Land, CoordinateSystem
 from modules.servo_motor import ServoMotor
 from modules import land_dao
@@ -27,7 +27,6 @@ class MyDrone:
     def __find_current_land_index(self):
         global_location = self.__get_global_location()
         drone_coordinate_system = CoordinateSystem(global_location.lat, global_location.lon)
-        print(drone_coordinate_system)
 
         for index, land in enumerate(self.lands):
             if land.contain(drone_coordinate_system):
@@ -36,16 +35,25 @@ class MyDrone:
         return OUT_OF_LANDS    
 
     def __get_global_location(self):
+        # 시뮬레이터의 호스트 및 포트 설정
+        sim_host = '127.0.0.1'  # 시뮬레이터 호스트 IP
+        sim_port = 5760  # 시뮬레이터 TCP 포트
 
-        # Connect to the Vehicle.
-        print("Connecting to vehicle on: %s" % (self.connection_string,))
-        vehicle = connect(self.connection_string, wait_ready=False)
+        # 시뮬레이터에 연결
+        print("Connecting to simulator on %s:%s" % (sim_host, sim_port))
+        connection_string = f'tcp:{sim_host}:{sim_port}'
+        vehicle = connect(connection_string, wait_ready=False)
 
+        # 드론의 위치 정보 가져오기
         global_frame = vehicle.location.global_frame
 
-        # Close vehicle object before exiting script
+        # 연결 종료
         vehicle.close()
-        print("location 가져오기 Completed")
+        print("Location 가져오기 Completed")
 
         return global_frame
-        
+
+if __name__ == "__main__":
+    # 시뮬레이터로부터 드론에 연결하여 시뮬레이션 실행
+    my_drone = MyDrone(None)
+    my_drone.seed_start()

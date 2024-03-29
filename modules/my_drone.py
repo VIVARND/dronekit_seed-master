@@ -1,8 +1,5 @@
-
 import sys
 sys.path.append("/home/user/.pyenv/versions/3.9.10/lib/python3.9/site-packages")
-
-
 
 from dronekit import connect, VehicleMode
 from modules.lands import Land, CoordinateSystem

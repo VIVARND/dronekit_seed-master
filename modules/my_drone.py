@@ -1,3 +1,6 @@
+import sys
+sys.path.append("/home/user/.pyenv/versions/3.9.10/lib/python3.9/site-packages")
+
 from dronekit import connect, VehicleMode
 from modules.lands import Land, CoordinateSystem
 from modules.servo_motor import ServoMotor
@@ -42,7 +45,7 @@ class MyDrone:
         # 시뮬레이터에 연결
         print("Connecting to simulator on %s:%s" % (sim_host, sim_port))
         connection_string = f'tcp:{sim_host}:{sim_port}'
-        vehicle = connect(connection_string, wait_ready=False)
+        vehicle = connect(connection_string, wait_ready=True)
 
         # 드론의 위치 정보 가져오기
         global_frame = vehicle.location.global_frame

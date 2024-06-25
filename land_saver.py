@@ -1,5 +1,6 @@
 import os
 import subprocess
+import signal  # 시그널 모듈 추가
 from modules.lands import Land, CoordinateSystem
 from modules import land_dao
 
@@ -9,6 +10,9 @@ DATA_FILE = "data.json"
 # 로그 디렉토리가 없으면 생성
 if not os.path.exists(LOGS_DIR):
     os.makedirs(LOGS_DIR)
+
+# 현재 실행 중인 서브프로세스를 저장할 변수
+current_process = None
 
 def print_current_lands():
     print("현재 땅 데이터:")
@@ -78,16 +82,34 @@ def input_servo_angle():
         print("숫자를 입력해주세요.")
 
 def start_manual_mode():
+    global current_process  # 전역 변수로 current_process 사용
+
     try:
-        subprocess.run(["python3", "/home/user/dronekit_seed-master/modules/manual_servo_motor_operation.py"])
+        if current_process and current_process.poll() is None:
+            current_process.terminate()  # 현재 실행 중인 서비스 종료
+            current_process.wait()  # 종료될 때까지 대기
+            print("이전 서비스를 종료했습니다.")
+
+        current_process = subprocess.Popen(["python3", "/home/user/dronekit_seed-master/modules/manual_servo_motor_operation.py"])
+        print("수동 모드를 백그라운드에서 시작합니다.")
+
     except FileNotFoundError:
         print("파일을 찾을 수 없습니다.")
     except Exception as e:
         print(f"오류 발생: {e}")
 
-def start_speed_servo_mode(menu_name):
+def start_auto_mode():
+    global current_process  # 전역 변수로 current_process 사용
+
     try:
-        subprocess.run(["python3", "/home/user/dronekit_seed-master/seed_start.py", menu_name])
+        if current_process and current_process.poll() is None:
+            current_process.terminate()  # 현재 실행 중인 서비스 종료
+            current_process.wait()  # 종료될 때까지 대기
+            print("이전 서비스를 종료했습니다.")
+
+        current_process = subprocess.Popen(["python3", "/home/user/dronekit_seed-master/seed_start.py", "speed_servo"])
+        print("자동 모드를 백그라운드에서 시작합니다.")
+
     except FileNotFoundError:
         print("파일을 찾을 수 없습니다.")
     except Exception as e:
@@ -96,14 +118,14 @@ def start_speed_servo_mode(menu_name):
 def main():
     # 상태 플래그 초기화
     manual_mode_active = False
-    speed_servo_mode_active = False
+    auto_mode_active = False  # 자동 모드 상태 플래그 추가
 
     while True:
         print("\n메뉴를 선택하세요:")
         print("1: 땅 좌표값 입력")
         print("2: 서보모터 각도 입력")
-        print("3: 드론 비행 속도연동 서보모터비레 제어")
-        print("4: 수동 모드")
+        print("3: 자동 모드 시작")  # 메뉴 수정
+        print("4: 수동 모드 시작")  # 메뉴 수정
         print("5: 종료")
 
         choice = input("선택: ")
@@ -111,28 +133,28 @@ def main():
         if choice == '1':
             input_land()
         elif choice == '2':
-            if speed_servo_mode_active:
-                print("속도 서보모터 제어 모드가 활성화되어 있습니다. 종료 후 다시 시도해주세요.")
-            else:
-                input_servo_angle()
+            input_servo_angle()
         elif choice == '3':
-            if manual_mode_active:
-                print("수동 모드가 활성화되어 있습니다. 종료 후 다시 시도해주세요.")
+            if auto_mode_active:
+                print("자동 모드가 이미 활성화되어 있습니다.")
             else:
-                print("속도로 서보모터 제어 모드입니다.")
-                speed_servo_mode_active = True
-                start_speed_servo_mode("speed_servo")
-                speed_servo_mode_active = False  # 실행 후 비활성화
+                print("자동 모드를 백그라운드에서 시작합니다.")
+                auto_mode_active = True
+                start_auto_mode()  # 자동 모드 백그라운드 실행
+                manual_mode_active = False  # 수동 모드 비활성화
         elif choice == '4':
-            if speed_servo_mode_active:
-                print("속도 서보모터 제어 모드가 활성화되어 있습니다. 종료 후 다시 시도해주세요.")
+            if manual_mode_active:
+                print("수동 모드가 이미 백그라운드에서 실행 중입니다.")
             else:
-                print("수동 모드를 시작합니다.")
+                print("수동 모드를 백그라운드에서 시작합니다.")
                 manual_mode_active = True
-                start_manual_mode()
-                manual_mode_active = False  # 실행 후 비활성화
+                start_manual_mode()  # 수동 모드 백그라운드 실행
+                auto_mode_active = False  # 자동 모드 비활성화
         elif choice == '5':
             print("종료합니다.")
+            if current_process and current_process.poll() is None:
+                current_process.terminate()  # 프로세스 종료
+                current_process.wait()  # 종료될 때까지 대기
             break
         else:
             print("잘못된 선택입니다. 다시 선택해주세요.")

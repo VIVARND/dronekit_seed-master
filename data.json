@@ -1,0 +1,119 @@
+[
+    {
+        "coordinates": [],
+        "servo_motor_angle": 140
+    },
+    {
+        "coordinates": [],
+        "servo_motor_angle": 130
+    },
+    {
+        "coordinates": [],
+        "servo_motor_angle": 140
+    },
+    {
+        "coordinates": [
+            {
+                "lat": 11.1,
+                "lon": 11.1
+            },
+            {
+                "lat": 11.2,
+                "lon": 11.2
+            },
+            {
+                "lat": 11.3,
+                "lon": 11.3
+            },
+            {
+                "lat": 11.4,
+                "lon": 11.4
+            }
+        ],
+        "servo_motor_angle": 120
+    },
+    {
+        "coordinates": [
+            {
+                "lat": 35.8467707,
+                "lon": 128.5065296
+            },
+            {
+                "lat": 35.8466054,
+                "lon": 128.5065396
+            },
+            {
+                "lat": 35.8465989,
+                "lon": 128.506956
+            },
+            {
+                "lat": 35.8467837,
+                "lon": 128.5069473
+            }
+        ],
+        "servo_motor_angle": 130
+    },
+    {
+        "coordinates": [
+            {
+                "lat": 124.1,
+                "lon": 124.1
+            },
+            {
+                "lat": 124.2,
+                "lon": 124.2
+            },
+            {
+                "lat": 124.3,
+                "lon": 124.3
+            },
+            {
+                "lat": 124.4,
+                "lon": 124.4
+            }
+        ],
+        "servo_motor_angle": 0
+    },
+    {
+        "coordinates": [
+            {
+                "lat": 12.1,
+                "lon": 12.1
+            },
+            {
+                "lat": 12.2,
+                "lon": 12.2
+            },
+            {
+                "lat": 12.3,
+                "lon": 12.3
+            },
+            {
+                "lat": 12.4,
+                "lon": 12.4
+            }
+        ],
+        "servo_motor_angle": 80
+    },
+    {
+        "coordinates": [
+            {
+                "lat": 13.1,
+                "lon": 13.1
+            },
+            {
+                "lat": 13.2,
+                "lon": 13.2
+            },
+            {
+                "lat": 13.3,
+                "lon": 13.3
+            },
+            {
+                "lat": 13.4,
+                "lon": 13.4
+            }
+        ],
+        "servo_motor_angle": 120
+    }
+]

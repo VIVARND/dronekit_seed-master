@@ -1,0 +1,86 @@
+from modules import land_dao
+from modules.lands import Land, CoordinateSystem
+
+def print_latest_land():
+    print("현재 땅 데이터:")
+    lands = land_dao.load_lands()
+    latest_land = lands[-1]  # 최신 땅 데이터 가져오기
+    print(f"1: {latest_land}")
+
+def input_land():
+    print("기존 데이터를 불러옵니다..")
+    lands = land_dao.load_lands()
+    print_latest_land()
+
+    print("땅의 꼭짓점 4개(lat, lon)를 입력해주세요, 직사각형을 기반으로 합니다.")
+    print("입력 예시: 12.3, 12.3")
+    
+    try:
+        li = []
+
+        lat, lon = map(float, input("꼭짓점 1 입력: ").split(","))
+        li.append(CoordinateSystem(lat, lon))
+
+        lat, lon = map(float, input("꼭짓점 2 입력: ").split(","))
+        li.append(CoordinateSystem(lat, lon))
+
+        lat, lon = map(float, input("꼭짓점 3 입력: ").split(","))
+        li.append(CoordinateSystem(lat, lon))
+
+        lat, lon = map(float, input("꼭짓점 4 입력: ").split(","))
+        li.append(CoordinateSystem(lat, lon))
+
+        new_land = Land(li, 0)  # 서보모터 각도는 초기값으로 설정
+        lands.append(new_land)
+        land_dao.save_lands(lands)
+        print("저장을 완료했습니다.")
+
+        # 변경된 데이터 출력
+        print_latest_land()
+
+    except ValueError:
+        print("유효한 숫자를 입력해주세요.")
+
+def input_servo_angle():
+    print("기존 데이터를 불러옵니다..")
+    lands = land_dao.load_lands()
+    print_latest_land()
+
+    try:
+        new_angle = int(input("서보모터 각도를 변경할 땅의 번호를 선택해주세요: "))
+        if 1 <= new_angle <= len(lands):
+            angle = int(input("변경할 서보모터 각도를 입력하세요: "))
+            lands[new_angle - 1].servo_motor_angle = angle
+            land_dao.save_lands(lands)
+            print("서보모터 각도를 저장했습니다.")
+
+            # 변경된 데이터 출력
+            print_latest_land()
+
+        else:
+            print(f"잘못된 번호입니다. 1부터 {len(lands)} 사이의 값을 입력해주세요.")
+
+    except ValueError:
+        print("숫자를 입력해주세요.")
+
+def main():
+    while True:
+        print("\n메뉴를 선택하세요:")
+        print("1: 땅 좌표값 입력")
+        print("2: 서보모터 각도 입력")
+        print("3: 종료")
+
+        choice = input("선택: ")
+
+        if choice == '1':
+            input_land()
+        elif choice == '2':
+            input_servo_angle()
+        elif choice == '3':
+            print("종료합니다.")
+            break
+        else:
+            print("잘못된 선택입니다. 다시 선택해주세요.")
+
+if __name__ == "__main__":
+    main()

@@ -5,6 +5,10 @@ import time
 RC_PIN = 17  # RC 수신기의 신호 핀 번호
 SERVO_PIN = 27  # 서보 모터의 신호 핀 번호
 
+# GPIO 핸들 생성 및 핀 설정
+h = lgpio.gpiochip_open(0)
+lgpio.gpio_claim_input(h, RC_PIN)  # RC_PIN을 입력 모드로 설정.
+
 # 서보 모터를 제어하는 클래스를 정의.
 class ServoControl:
     def __init__(self, h, pin):
@@ -22,10 +26,6 @@ class ServoControl:
         duty_cycle = (angle / 180.0) * 10 + 2.5  # 2% 대신 2.5% 사용
         self.set_duty_cycle(duty_cycle)
 
-# GPIO 핸들 생성 및 핀 설정
-h = lgpio.gpiochip_open(0)
-lgpio.gpio_claim_input(h, RC_PIN)  # RC_PIN을 입력 모드로 설정.
-
 # ServoControl 클래스의 인스턴스를 생성합니다.
 servo_manual = ServoControl(h, SERVO_PIN)
 
@@ -34,6 +34,8 @@ def read_pwm_average(samples=10, interval=0.0001):
     pwm_values = []
     for _ in range(samples):
         pulse_start = time.time()
+        pulse_end = pulse_start  # 초기화
+
         while lgpio.gpio_read(h, RC_PIN) == 0:
             pulse_start = time.time()
         
@@ -52,17 +54,17 @@ def read_pwm_average(samples=10, interval=0.0001):
 
 try:
     while True:
-        # RC 수신기에서 평균 PWM 값 읽기
+        # 여러 샘플을 사용하여 평균 PWM 값 읽기
         average_pwm = read_pwm_average(samples=10, interval=0.0001)
         
         # 평균 PWM 값 출력
         print(f"현재 PWM 값: {int(average_pwm)}")
         
         # PWM 값에 따라 서보 모터 각도 설정
-        if 850 <= average_pwm <= 1100:
+        if 850 <= average_pwm <= 1150:
             angle = 0  # 0도
         elif 1400 <= average_pwm <= 1600:
-            angle = 100  # 100도
+            angle = 80  # 80도
         elif 1800 <= average_pwm <= 2100:
             angle = 140  # 140도
         else:
@@ -77,7 +79,7 @@ try:
         else:
             print("서보 모터 멈춤")
 
-        time.sleep(0.1)  # 주기적으로 갱신합니다.
+        time.sleep(0.5)  # 주기적으로 갱신합니다.
 
 except KeyboardInterrupt:
     lgpio.gpiochip_close(h)  # GPIO 핸들을 정리합니다.

@@ -1,8 +1,9 @@
+
 import time
-from dronekit import connect
-from modules.lands import CoordinateSystem
-from modules import land_dao
+from dronekit import connect, VehicleMode, Vehicle
+from modules.lands import Land, CoordinateSystem
 from modules.servo_motor import ServoMotor
+from modules import land_dao
 
 NOT_CONTAIN_ANGLE = 0
 OUT_OF_LANDS = -1
@@ -19,13 +20,11 @@ class MyDrone:
         self.last_update_time = time.time()
         self.vehicle = self.__connect_vehicle()  # 드론 연결을 초기화 시점에서 수행
         self.position_history = []
-        self.current_speed = None  # 초기화: 속도를 저장할 변수
-        self.mode = None  # 초기 모드는 None으로 설정
 
     def __connect_vehicle(self):
         print(f"Connecting to vehicle on: {self.connection_string}")
         vehicle = connect(self.connection_string, wait_ready=True)
-        print("드론 연결 완료")
+        print("location 가져오기 Completed")
         return vehicle
 
     def seed_start(self):
@@ -49,15 +48,11 @@ class MyDrone:
 
                     self.print_current_state()
 
-                    # 속도 제어 모드에서 추가적인 작업 수행
-                    if self.mode == "speed_control":
-                        self.__start_speed_servo()
-
                 time.sleep(0.5)  # 0.5초 간격으로 출력
 
         finally:
             self.vehicle.close()
-            print("드론 연결 종료")
+            print("Vehicle 연결이 종료되었습니다.")
 
     def __find_current_land_index(self):
         global_location = self.__get_global_location()
@@ -69,6 +64,12 @@ class MyDrone:
         if len(self.position_history) > AVERAGE_POSITION_COUNT:
             self.position_history.pop(0)  # 가장 오래된 위치 제거
 
+        # 평균 위치 계산
+        average_lat = sum(coord.lat for coord in self.position_history) / len(self.position_history)
+        average_lon = sum(coord.lon for coord in self.position_history) / len(self.position_history)
+
+        print(f"평균 위치: latitude: {average_lat}, longitude: {average_lon}")
+
         for index, land in enumerate(self.lands):
             if land.contains(drone_coordinate_system):
                 return index
@@ -78,10 +79,6 @@ class MyDrone:
     def __get_global_location(self):
         global_frame = self.vehicle.location.global_frame
         return global_frame
-
-    def __get_groundspeed(self):
-        groundspeed = self.vehicle.groundspeed  # 미터/초로 단위가 설정됩니다.
-        return groundspeed
 
     def print_current_state(self):
         if self.current_land_index == OUT_OF_LANDS:
@@ -93,22 +90,10 @@ class MyDrone:
                 print(f"좌표 {idx + 1}: latitude: {coord.lat}, longitude: {coord.lon}")
             print(f"서보모터 각도: {land.servo_motor_angle}")
 
-        # 속도 출력
-        current_speed = self.__get_groundspeed()
-        formatted_speed = round(current_speed, 2) if current_speed is not None else "N/A"
-        print(f"현재 속도: {formatted_speed} m/s")
-
         print(f"현재 서보모터 각도: {self.servo_motor.current_angle}")
-
-    def set_mode(self, mode):
-        self.mode = mode
-
-    def get_mode(self):
-        return self.mode
 
 if __name__ == "__main__":
     def sitl_start():
-        from modules.drone_sitl import DroneSitl
         drone_sitl = DroneSitl()
         start(drone_sitl.sitl.connection_string())
 

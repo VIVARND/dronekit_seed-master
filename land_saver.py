@@ -1,3 +1,4 @@
+
 import os
 import subprocess
 import signal  # 시그널 모듈 추가
@@ -126,7 +127,8 @@ def main():
         print("2: 서보모터 각도 입력")
         print("3: 자동 모드 시작")  # 메뉴 수정
         print("4: 수동 모드 시작")  # 메뉴 수정
-        print("5: 종료")
+        print("5: 현재 작업 중인 백그라운드 프로세스 종료 및 메뉴 재표시")
+        print("6: 종료")
 
         choice = input("선택: ")
 
@@ -151,9 +153,14 @@ def main():
                 start_manual_mode()  # 수동 모드 백그라운드 실행
                 auto_mode_active = False  # 자동 모드 비활성화
         elif choice == '5':
-            print("종료합니다.")
             if current_process and current_process.poll() is None:
-                current_process.terminate()  # 프로세스 종료
+                current_process.terminate()  # 현재 실행 중인 백그라운드 프로세스 종료
+                current_process.wait()  # 종료될 때까지 대기
+            print("\n메뉴를 다시 표시합니다.")
+        elif choice == '6':
+            print("프로그램을 종료합니다.")
+            if current_process and current_process.poll() is None:
+                current_process.terminate()  # 현재 실행 중인 백그라운드 프로세스 종료
                 current_process.wait()  # 종료될 때까지 대기
             break
         else:
@@ -161,3 +168,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

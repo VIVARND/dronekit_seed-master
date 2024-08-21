@@ -1,6 +1,5 @@
 import os
 import subprocess
-import signal  # 시그널 모듈 추가
 from modules.lands import Land, CoordinateSystem
 from modules import land_dao
 
@@ -27,6 +26,19 @@ def print_current_lands():
         for vertex in latest_land.coordinates:
             print(f"latitude: {vertex.lat}, longitude: {vertex.lon}")
 
+def print_specified_land():
+    print("지정된 땅 데이터:")
+    lands = land_dao.load_lands()
+
+    if not lands:
+        print("등록된 땅 데이터가 없습니다.")
+    else:
+        specified_land = lands[-1]  # 최신 저장된 데이터를 가져오기
+        print(f"서보모터 각도: {specified_land.servo_motor_angle}")
+        print("꼭짓점 좌표:")
+        for vertex in specified_land.coordinates:
+            print(f"latitude: {vertex.lat}, longitude: {vertex.lon}")
+
 def input_land():
     print("땅의 꼭짓점 4개(lat, lon)를 입력해주세요, 직사각형을 기반으로 합니다.")
     print("입력 예시: 12.3, 12.3")
@@ -49,8 +61,7 @@ def input_land():
         new_land = Land(li, 0)  # 서보모터 각도는 초기값으로 설정
         lands = land_dao.load_lands()
         lands.append(new_land)
-        land_dao.save_lands(lands)
-        land_dao.save_log(lands)  # 로그 저장 추가
+        land_dao.save_lands(lands)  # 최신 데이터와 로그 저장
         print("저장을 완료했습니다.")
         print_current_lands()  # 최신 데이터 출력 추가
 
@@ -75,8 +86,7 @@ def input_servo_angle():
         print(f"이전 각도: {latest_land.servo_motor_angle}")  # 각도 변경 전 출력
         latest_land.servo_motor_angle = angle
         print(f"변경된 각도: {latest_land.servo_motor_angle}")  # 각도 변경 후 출력
-        land_dao.save_lands(lands)
-        land_dao.save_log(lands)  # 로그 저장 추가
+        land_dao.save_lands(lands)  # 최신 데이터와 로그 저장
         print("서보모터 각도를 저장했습니다.")
         print_current_lands()  # 최신 데이터 출력 추가
 
@@ -126,10 +136,11 @@ def main():
         print("\n메뉴를 선택하세요:")
         print("1: 땅 좌표값 입력")
         print("2: 서보모터 각도 입력")
-        print("3: 자동 모드 시작")  # 메뉴 수정
-        print("4: 수동 모드 시작")  # 메뉴 수정
-        print("5: 현재 작업 중인 백그라운드 프로세스 종료 및 메뉴 재표시")
-        print("6: 종료")
+        print("3: 지정된 좌표 및 서보모터 각도 보기")  # 추가된 메뉴
+        print("4: 자동 모드 시작")  # 메뉴 수정
+        print("5: 수동 모드 시작")  # 메뉴 수정
+        print("6: 현재 작업 중인 백그라운드 프로세스 종료 및 메뉴 재표시")
+        print("7: 종료")
 
         choice = input("선택: ")
 
@@ -138,6 +149,8 @@ def main():
         elif choice == '2':
             input_servo_angle()
         elif choice == '3':
+            print_specified_land()  # 추가된 기능 호출
+        elif choice == '4':
             if auto_mode_active:
                 print("자동 모드가 이미 활성화되어 있습니다.")
             else:
@@ -145,7 +158,7 @@ def main():
                 auto_mode_active = True
                 start_auto_mode()  # 자동 모드 백그라운드 실행
                 manual_mode_active = False  # 수동 모드 비활성화
-        elif choice == '4':
+        elif choice == '5':
             if manual_mode_active:
                 print("수동 모드가 이미 백그라운드에서 실행 중입니다.")
             else:
@@ -153,12 +166,12 @@ def main():
                 manual_mode_active = True
                 start_manual_mode()  # 수동 모드 백그라운드 실행
                 auto_mode_active = False  # 자동 모드 비활성화
-        elif choice == '5':
+        elif choice == '6':
             if current_process and current_process.poll() is None:
                 current_process.terminate()  # 현재 실행 중인 백그라운드 프로세스 종료
                 current_process.wait()  # 종료될 때까지 대기
             print("\n메뉴를 다시 표시합니다.")
-        elif choice == '6':
+        elif choice == '7':
             print("프로그램을 종료합니다.")
             if current_process and current_process.poll() is None:
                 current_process.terminate()  # 현재 실행 중인 백그라운드 프로세스 종료

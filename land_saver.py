@@ -1,4 +1,3 @@
-
 import os
 import subprocess
 import signal  # 시그널 모듈 추가
@@ -73,7 +72,9 @@ def input_servo_angle():
 
     try:
         angle = int(input("변경할 서보모터 각도를 입력하세요: "))
+        print(f"이전 각도: {latest_land.servo_motor_angle}")  # 각도 변경 전 출력
         latest_land.servo_motor_angle = angle
+        print(f"변경된 각도: {latest_land.servo_motor_angle}")  # 각도 변경 후 출력
         land_dao.save_lands(lands)
         land_dao.save_log(lands)  # 로그 저장 추가
         print("서보모터 각도를 저장했습니다.")
@@ -168,4 +169,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

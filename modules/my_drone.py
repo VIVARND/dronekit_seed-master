@@ -1,4 +1,5 @@
-
+import json
+import os
 import time
 from dronekit import connect, VehicleMode, Vehicle
 from modules.lands import Land, CoordinateSystem
@@ -42,9 +43,12 @@ class MyDrone:
                             print("드론이 지정된 땅 좌표 바깥에 있습니다. 서보모터 각도를 0도로 설정합니다.")
                             self.servo_motor.change_angle(NOT_CONTAIN_ANGLE)
                         else:
-                            print("구역을 이동했으므로 서보모터 각도를 변경합니다")
-                            angle = self.lands[new_current_index].servo_motor_angle
-                            self.servo_motor.change_angle(angle)
+                            # 최신 데이터 로드 및 서보모터 각도 설정
+                            latest_data = self.__load_latest_data()
+                            if latest_data and self.current_land_index < len(latest_data['data']):
+                                angle = latest_data['data'][self.current_land_index]['servo_motor_angle']
+                                print("구역을 이동했으므로 서보모터 각도를 변경합니다")
+                                self.servo_motor.change_angle(angle)
 
                     self.print_current_state()
 
@@ -79,6 +83,13 @@ class MyDrone:
     def __get_global_location(self):
         global_frame = self.vehicle.location.global_frame
         return global_frame
+
+    def __load_latest_data(self):
+        log_file_path = os.path.join(LOGS_DIR, LOG_FILE)
+        if os.path.exists(log_file_path):
+            with open(log_file_path, 'r') as f:
+                return json.load(f)
+        return None
 
     def print_current_state(self):
         if self.current_land_index == OUT_OF_LANDS:

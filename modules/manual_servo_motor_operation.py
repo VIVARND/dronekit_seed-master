@@ -64,9 +64,9 @@ try:
         if 850 <= average_pwm <= 1150:
             angle = 0  # 0도
         elif 1400 <= average_pwm <= 1600:
-            angle = 50  # 80도
+            angle = 50  # 50도
         elif 1800 <= average_pwm <= 2100:
-            angle = 110  # 140도
+            angle = 100  # 100도
         else:
             angle = None  # 그 외의 경우에는 None (서보 모터 멈춤)
         

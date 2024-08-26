@@ -64,7 +64,7 @@ try:
         if 850 <= average_pwm <= 1150:
             angle = 0  # 0도
         elif 1400 <= average_pwm <= 1600:
-            angle = 80  # 80도
+            angle = 50  # 80도
         elif 1800 <= average_pwm <= 2100:
             angle = 140  # 140도
         else:
